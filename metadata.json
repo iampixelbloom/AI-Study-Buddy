@@ -1,0 +1,6 @@
+{
+  "name": "AI Study Buddy",
+  "description": "An interactive study companion with personalized quiz generation, real-time query explanations, key concepts summarization, and smart flashcard sets.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
