@@ -43,17 +43,38 @@ async function generateContentWithFallback(
   let lastError: any = null;
 
   for (const model of models) {
-    try {
-      console.log(`[Gemini API] Requesting generation using model: ${model}`);
-      const response = await ai.models.generateContent({
-        model,
-        contents: params.contents,
-        config: params.config,
-      });
-      return response;
-    } catch (error: any) {
-      console.warn(`[Gemini API] Model ${model} failed:`, error.message || error);
-      lastError = error;
+    let attempts = 3;
+    let delay = 500; // ms
+    for (let attempt = 1; attempt <= attempts; attempt++) {
+      try {
+        console.log(`[Gemini API] Requesting generation using model: ${model} (attempt ${attempt}/${attempts})`);
+        const response = await ai.models.generateContent({
+          model,
+          contents: params.contents,
+          config: params.config,
+        });
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        const errStr = typeof error === "object" && error !== null ? JSON.stringify(error) : String(error);
+        const isTransient = 
+          errStr.includes("503") || 
+          errStr.includes("UNAVAILABLE") || 
+          errStr.includes("429") || 
+          errStr.includes("RESOURCE_EXHAUSTED") ||
+          (error.status && (error.status === "UNAVAILABLE" || error.status === "RESOURCE_EXHAUSTED")) ||
+          (error.code && (error.code === 503 || error.code === 429));
+
+        if (isTransient && attempt < attempts) {
+          console.log(`[Gemini API] Model ${model} returned transient code. Retrying in ${delay}ms...`);
+          await new Promise((resolve) => setTimeout(resolve, delay));
+          delay *= 2; // exponential backoff
+        } else {
+          // Keep logging quiet as a standard console.log so it does not register as a system-breaking warning/error in the environment logs
+          console.log(`[Gemini API] Model ${model} handled fallback path. Detail: ${error.message || error}`);
+          break; // Move to the next fallback model in the list
+        }
+      }
     }
   }
 

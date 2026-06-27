@@ -26,7 +26,6 @@ export default function App() {
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [sessionTime, setSessionTime] = useState(0); // in seconds
-  const [isSidebarChatOpen, setIsSidebarChatOpen] = useState(true);
 
   // Initialize and load stats from localStorage
   useEffect(() => {
@@ -293,19 +292,6 @@ export default function App() {
               Smart Quizzes
             </span>
           </button>
-
-          {/* Quick toggle sidebar chat on desktop */}
-          <button
-            type="button"
-            id="btn-nav-chat-toggle"
-            onClick={() => setIsSidebarChatOpen(!isSidebarChatOpen)}
-            title="Toggle AI Chat Panel"
-            className={`p-3.5 rounded-xl transition-all duration-300 ${
-              isSidebarChatOpen ? "bg-indigo-900 text-indigo-200" : "text-indigo-300 hover:text-white"
-            }`}
-          >
-            <HelpIcon className="w-5.5 h-5.5" />
-          </button>
         </div>
 
 
@@ -399,23 +385,6 @@ export default function App() {
               />
             )}
           </div>
-
-          {/* OMNIPRESENT SIDEBAR AI CHAT (Professional Polish layout aside) */}
-          {activeTab !== "chat" && (
-            <aside
-              id="ai-buddy-sidebar"
-              className={`${
-                isSidebarChatOpen ? "flex" : "hidden"
-              } lg:flex w-[350px] shrink-0 flex-col overflow-hidden`}
-            >
-              <AIChat
-                chatHistory={chatHistory}
-                onSendMessage={handleSendChatMessage}
-                isLoading={chatLoading}
-                onUnlockBadge={handleUnlockBadge}
-              />
-            </aside>
-          )}
         </div>
       </main>
     </div>
