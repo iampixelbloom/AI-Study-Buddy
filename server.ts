@@ -71,7 +71,7 @@ async function generateContentWithFallback(
           delay *= 2; // exponential backoff
         } else {
           // Keep logging quiet as a standard console.log so it does not register as a system-breaking warning/error in the environment logs
-          console.log(`[Gemini API] Model ${model} handled fallback path. Detail: ${error.message || error}`);
+          console.log(`[Gemini API] Model ${model} is busy or returned ${error.code || error.status || "status"}. Transitioning to fallback model...`);
           break; // Move to the next fallback model in the list
         }
       }
